@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPP Kalkulator by Gary Hernandar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            margin-top: 20px;
+        }
+        .form-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            flex: 1 1 calc(50% - 10px);
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        #result {
+            background: #eef;
+            border: 1px solid #007BFF;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>HPP Kalkulator by Gary Hernandar</h1>
+
+    <h2>Input Bahan Baku</h2>
+    <div class="form-section">
+        <div class="form-group">
+            <label>Nama Bahan:</label>
+            <input type="text" id="bahan-nama">
+        </div>
+        <div class="form-group">
+            <label>Harga Total:</label>
+            <input type="number" id="bahan-harga">
+        </div>
+        <div class="form-group">
+            <label>Berat Total (gram):</label>
+            <input type="number" id="bahan-berat">
+        </div>
+        <div class="form-group">
+            <label>Pemakaian per Porsi (gram):</label>
+            <input type="number" id="bahan-pemakaian">
+        </div>
+    </div>
+    <button id="tambah-bahan">Tambah Bahan</button>
+
+    <table id="bahan-table">
+        <thead>
+            <tr>
+                <th>Nama Bahan</th>
+                <th>Harga Total</th>
+                <th>Berat Total (gram)</th>
+                <th>Pemakaian per Porsi (gram)</th>
+                <th>Harga per Pemakaian</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>Input Biaya Operasional</h2>
+    <div class="form-section">
+        <div class="form-group">
+            <label>Nama Operasional:</label>
+            <input type="text" id="operasional-nama">
+        </div>
+        <div class="form-group">
+            <label>Biaya per Bulan:</label>
+            <input type="number" id="operasional-biaya">
+        </div>
+    </div>
+    <button id="tambah-operasional">Tambah Operasional</button>
+
+    <table id="operasional-table">
+        <thead>
+            <tr>
+                <th>Nama Operasional</th>
+                <th>Biaya per Bulan</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>Perhitungan</h2>
+    <div class="form-section">
+        <div class="form-group">
+            <label>Perkiraan Porsi Terjual per Bulan:</label>
+            <input type="number" id="perkiraan-porsi">
+        </div>
+    </div>
+    <button id="hitung-hpp">Hitung HPP</button>
+
+    <div id="result"></div>
+
+    <button id="export-excel">Ekspor ke Excel</button>
+    <button id="export-pdf">Ekspor ke PDF</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <script>
+        const bahanTableBody = document.querySelector('#bahan-table tbody');
+        const operasionalTableBody = document.querySelector('#operasional-table tbody');
+        const resultDiv = document.getElementById('result');
+
+        document.getElementById('tambah-bahan').addEventListener('click', () => {
+            const nama = document.getElementById('bahan-nama').value;
+            const harga = parseFloat(document.getElementById('bahan-harga').value);
+            const berat = parseFloat(document.getElementById('bahan-berat').value);
+            const pemakaian = parseFloat(document.getElementById('bahan-pemakaian').value);
+
+            if (nama && harga && berat && pemakaian) {
+                const hargaPerPemakaian = (harga / berat) * pemakaian;
+
+                const row = `<tr>
+                    <td>${nama}</td>
+                    <td>${harga.toFixed(2)}</td>
+                    <td>${berat.toFixed(2)}</td>
+                    <td>${pemakaian.toFixed(2)}</td>
+                    <td>${hargaPerPemakaian.toFixed(2)}</td>
+                </tr>`;
+
+                bahanTableBody.insertAdjacentHTML('beforeend', row);
+
+                document.getElementById('bahan-nama').value = '';
+                document.getElementById('bahan-harga').value = '';
+                document.getElementById('bahan-berat').value = '';
+                document.getElementById('bahan-pemakaian').value = '';
+            }
+        });
+
+        document.getElementById('tambah-operasional').addEventListener('click', () => {
+            const nama = document.getElementById('operasional-nama').value;
+            const biaya = parseFloat(document.getElementById('operasional-biaya').value);
+
+            if (nama && biaya) {
+                const row = `<tr>
+                    <td>${nama}</td>
+                    <td>${biaya.toFixed(2)}</td>
+                </tr>`;
+
+                operasionalTableBody.insertAdjacentHTML('beforeend', row);
+
+                document.getElementById('operasional-nama').value = '';
+                document.getElementById('operasional-biaya').value = '';
+            }
+        });
+
+        document.getElementById('hitung-hpp').addEventListener('click', () => {
+            let totalBahan = 0;
+            let totalOperasional = 0;
+
+            document.querySelectorAll('#bahan-table tbody tr').forEach(row => {
+                const hargaPerPemakaian = parseFloat(row.children[4].innerText);
+                totalBahan += hargaPerPemakaian;
+            });
+
+            document.querySelectorAll('#operasional-table tbody tr').forEach(row => {
+                const biaya = parseFloat(row.children[1].innerText);
+                totalOperasional += biaya;
+            });
+
+            const perkiraanPorsi = parseFloat(document.getElementById('perkiraan-porsi').value);
+
+            let hpp = totalBahan;
+            if (perkiraanPorsi) {
+                hpp += totalOperasional / perkiraanPorsi;
+            }
+
+            const recommendedPrice = perkiraanPorsi ? (hpp * 1.5).toFixed(2) : 'Tidak dapat dihitung';
+
+            resultDiv.innerHTML = `
+                <p><strong>Total Biaya Bahan Baku per Porsi:</strong> ${totalBahan.toFixed(2)}</p>
+                <p><strong>Total Biaya Operasional per Bulan:</strong> ${totalOperasional.toFixed(2)}</p>
+                <p><strong>HPP per Porsi:</strong> ${hpp.toFixed(2)}</p>
+                <p><strong>Rekomendasi Harga Jual:</strong> ${recommendedPrice}</p>
+            `;
+        });
+
+        document.getElementById('export-excel').addEventListener('click', () => {
+            const wb = XLSX.utils.book_new();
+            const bahanTable = XLSX.utils.table_to_sheet(document.querySelector('#bahan-table'));
+            const operasionalTable = XLSX.utils.table_to_sheet(document.querySelector('#operasional-table'));
+
+            XLSX.utils.book_append_sheet(wb, bahanTable, 'Bahan Baku');
+            XLSX.utils.book_append_sheet(wb, operasionalTable, 'Operasional');
+
+            XLSX.writeFile(wb, 'HPP_Report.xlsx');
+        });
+
+        document.getElementById('export-pdf').addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text('HPP Kalkulator Report', 10, 10);
+
+            let yOffset = 20;
+
+            doc.text('Daftar Bahan Baku:', 10, yOffset);
+            yOffset += 10;
+
+            document.querySelectorAll('#bahan-table tbody tr').forEach(row => {
+                const rowData = Array.from(row.children).map(cell => cell.textContent).join(' | ');
+                doc.text(rowData, 10, yOffset);
+                yOffset += 10;
+            });
+
+            yOffset += 10;
+            doc.text('Daftar Operasional:', 10, yOffset);
+            yOffset += 10;
+
+            document.querySelectorAll('#operasional-table tbody tr').forEach(row => {
+                const rowData = Array.from(row.children).map(cell => cell.textContent).join(' | ');
+                doc.text(rowData, 10, yOffset);
+                yOffset += 10;
+            });
+
+            doc.save('HPP_Report.pdf');
+        });
+    </script>
+</body>
+</html>
